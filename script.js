@@ -109,7 +109,7 @@ document.addEventListener('DOMContentLoaded', () => {
     function setLoadingState(loading) {
         isLoading = loading;
         if (loading) {
-            generateBtn.textContent = 'Menghasilkan 5 Soal...';
+            generateBtn.textContent = 'Menghasilkan 2 Soal...';
             generateBtn.disabled = true;
             generateBtn.style.opacity = '0.7';
             
@@ -134,13 +134,13 @@ document.addEventListener('DOMContentLoaded', () => {
         const subjectName = subject === 'biology' ? 'Biologi' : 'Fisika';
         
         const promptText = `Anda adalah pembuat soal ahli untuk Olimpiade Sains Nasional (OSN) IPA tingkat Sekolah Dasar (SD) di Indonesia.
-Buatkan tepat 5 (lima) soal pilihan ganda baru yang menantang dan relevan untuk mata pelajaran ${subjectName} dengan tingkat kesulitan ${difficulty}.
-SANGAT PENTING: Masing-masing dari ke-5 soal tersebut HARUS mencakup aspek/sub-topik yang BERBEDA dari silabus ${subjectName} agar bervariasi.
+Buatkan tepat 2 (dua) soal pilihan ganda baru yang menantang dan relevan untuk mata pelajaran ${subjectName} dengan tingkat kesulitan ${difficulty}.
+SANGAT PENTING: Masing-masing dari ke-2 soal tersebut HARUS mencakup aspek/sub-topik yang BERBEDA dari silabus ${subjectName} agar bervariasi.
 
 Pastikan soal yang Anda buat MENGACU SECARA KETAT pada SILABUS OSN IPA SD berikut ini:
 ${silabusText}
 
-Berikan jawaban HANYA dalam format JSON yang valid tanpa teks tambahan atau format markdown. Gunakan struktur JSON persis seperti berikut (mengembalikan objek dengan properti "questions" yang berisi array 5 objek soal):
+Berikan jawaban HANYA dalam format JSON yang valid tanpa teks tambahan atau format markdown. Gunakan struktur JSON persis seperti berikut (mengembalikan objek dengan properti "questions" yang berisi array 2 objek soal):
 {
   "questions": [
     {
@@ -152,7 +152,7 @@ Berikan jawaban HANYA dalam format JSON yang valid tanpa teks tambahan atau form
     }
   ]
 }
-Catatan: correctAnswer adalah indeks dari array options (0 untuk A, 1 untuk B, 2 untuk C, 3 untuk D). Hasilkan tepat 5 objek dalam array questions.`;
+Catatan: correctAnswer adalah indeks dari array options (0 untuk A, 1 untuk B, 2 untuk C, 3 untuk D). Hasilkan tepat 2 objek dalam array questions.`;
 
         currentAbortController = new AbortController();
         const timeoutId = setTimeout(() => currentAbortController.abort(), 60000); // 60 seconds timeout
