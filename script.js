@@ -169,8 +169,7 @@ Catatan: correctAnswer adalah indeks dari array options (0 untuk A, 1 untuk B, 2
                     model: modelId,
                     messages: [
                         { role: 'user', content: promptText }
-                    ],
-                    response_format: { type: 'json_object' }
+                    ]
                 })
             });
 
@@ -178,16 +177,27 @@ Catatan: correctAnswer adalah indeks dari array options (0 untuk A, 1 untuk B, 2
 
             if (!response.ok) {
                 const err = await response.json();
+                console.error("OpenRouter API Error:", err);
                 throw new Error(err.error?.message || 'API request failed');
             }
 
             const data = await response.json();
             let content = data.choices[0].message.content;
             
-            // Remove markdown block if model included it
-            content = content.replace(/```json/g, '').replace(/```/g, '').trim();
+            // Robust JSON extraction
+            const jsonMatch = content.match(/\{[\s\S]*\}/);
+            if (jsonMatch) {
+                content = jsonMatch[0];
+            } else {
+                content = content.replace(/```json/g, '').replace(/```/g, '').trim();
+            }
 
-            return JSON.parse(content);
+            try {
+                return JSON.parse(content);
+            } catch (e) {
+                console.error("Failed to parse JSON:", content);
+                throw new Error("Model gagal menghasilkan format soal yang benar. Silakan coba lagi.");
+            }
         } catch (error) {
             if (error.name === 'AbortError') {
                 throw new Error("Waktu permintaan habis (Timeout). API terlalu lama merespons.");
