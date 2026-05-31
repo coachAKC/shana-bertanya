@@ -16,6 +16,7 @@ document.addEventListener('DOMContentLoaded', () => {
     let isLoading = false;
     let timerInterval = null;
     let timeRemaining = 0;
+    let currentAbortController = null;
 
     // Load API key and model from local storage if available
     const savedApiKey = localStorage.getItem('openrouter_api_key');
@@ -114,7 +115,12 @@ document.addEventListener('DOMContentLoaded', () => {
             
             clearInterval(timerInterval);
             timerDisplay.style.display = 'none';
-            questionsList.innerHTML = '<div style="text-align:center; padding: 2rem;">Sedang membuat soal... Mohon tunggu.</div>';
+            questionsList.innerHTML = `
+                <div style="text-align:center; padding: 2rem;">
+                    <div class="spinner"></div>
+                    <div>Sedang membuat soal... (Ini mungkin memakan waktu hingga 30 detik)</div>
+                </div>
+            `;
             actionBar.style.display = 'none';
             exportPdfBtn.style.display = 'none';
         } else {
@@ -148,33 +154,48 @@ Berikan jawaban HANYA dalam format JSON yang valid tanpa teks tambahan atau form
 }
 Catatan: correctAnswer adalah indeks dari array options (0 untuk A, 1 untuk B, 2 untuk C, 3 untuk D). Hasilkan tepat 5 objek dalam array questions.`;
 
-        const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
-            method: 'POST',
-            headers: {
-                'Authorization': `Bearer ${apiKey}`,
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({
-                model: modelId,
-                messages: [
-                    { role: 'user', content: promptText }
-                ],
-                response_format: { type: 'json_object' }
-            })
-        });
+        currentAbortController = new AbortController();
+        const timeoutId = setTimeout(() => currentAbortController.abort(), 60000); // 60 seconds timeout
 
-        if (!response.ok) {
-            const err = await response.json();
-            throw new Error(err.error?.message || 'API request failed');
+        try {
+            const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
+                method: 'POST',
+                headers: {
+                    'Authorization': `Bearer ${apiKey}`,
+                    'Content-Type': 'application/json'
+                },
+                signal: currentAbortController.signal,
+                body: JSON.stringify({
+                    model: modelId,
+                    messages: [
+                        { role: 'user', content: promptText }
+                    ],
+                    response_format: { type: 'json_object' }
+                })
+            });
+
+            clearTimeout(timeoutId);
+
+            if (!response.ok) {
+                const err = await response.json();
+                throw new Error(err.error?.message || 'API request failed');
+            }
+
+            const data = await response.json();
+            let content = data.choices[0].message.content;
+            
+            // Remove markdown block if model included it
+            content = content.replace(/```json/g, '').replace(/```/g, '').trim();
+
+            return JSON.parse(content);
+        } catch (error) {
+            if (error.name === 'AbortError') {
+                throw new Error("Waktu permintaan habis (Timeout). API terlalu lama merespons.");
+            }
+            throw error;
+        } finally {
+            currentAbortController = null;
         }
-
-        const data = await response.json();
-        let content = data.choices[0].message.content;
-        
-        // Remove markdown block if model included it
-        content = content.replace(/```json/g, '').replace(/```/g, '').trim();
-
-        return JSON.parse(content);
     }
 
     function renderQuestions() {
