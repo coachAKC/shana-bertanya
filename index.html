@@ -19,12 +19,15 @@
     </div>
 
     <div class="app-container">
-        <header class="header">
+        <header class="header" style="position: relative;">
             <h1>Shana Bertanya</h1>
             <p>Latihan Soal Olimpiade Sains Nasional (OSN) IPA SD</p>
+            <div id="timer-display" class="timer" style="display: none;">
+                ⏱ <span id="time-left">00:00</span>
+            </div>
         </header>
 
-        <section class="controls">
+        <section class="controls" id="controls-section">
             <div class="control-group" style="flex: 100%; margin-bottom: 1rem;">
                 <label for="api-key">OpenRouter API Key</label>
                 <input type="password" id="api-key" placeholder="sk-or-v1-..." style="
@@ -79,8 +82,9 @@
             <div id="questions-list">
                 <!-- Multiple questions will be rendered here dynamically -->
             </div>
-            <div id="action-bar" style="display: none; margin-top: 2rem; text-align: center;">
-                <button id="check-all-btn" class="btn">Cek Semua Jawaban</button>
+            <div id="action-bar" style="display: none; margin-top: 2rem; text-align: center; display: flex; justify-content: center; gap: 1rem; flex-wrap: wrap;">
+                <button id="check-all-btn" class="btn" style="width: auto;">Cek Semua Jawaban</button>
+                <button id="export-pdf-btn" class="btn" style="display: none; width: auto; background: #10B981;">Simpan ke PDF</button>
             </div>
         </section>
     </div>

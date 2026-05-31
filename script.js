@@ -7,10 +7,15 @@ document.addEventListener('DOMContentLoaded', () => {
     const questionsList = document.getElementById('questions-list');
     const actionBar = document.getElementById('action-bar');
     const checkAllBtn = document.getElementById('check-all-btn');
+    const exportPdfBtn = document.getElementById('export-pdf-btn');
+    const timerDisplay = document.getElementById('timer-display');
+    const timeLeftSpan = document.getElementById('time-left');
 
     let currentQuestions = [];
     let selectedOptions = []; // Array to store user's selected option index for each question
     let isLoading = false;
+    let timerInterval = null;
+    let timeRemaining = 0;
 
     // Load API key and model from local storage if available
     const savedApiKey = localStorage.getItem('openrouter_api_key');
@@ -62,6 +67,7 @@ document.addEventListener('DOMContentLoaded', () => {
             
             selectedOptions = new Array(currentQuestions.length).fill(null);
             renderQuestions();
+            startTimer(currentQuestions.length * 90); // 90 seconds per question
         } catch (error) {
             console.error(error);
             alert('Gagal menghasilkan pertanyaan. Periksa API Key Anda atau coba lagi nanti.\nError: ' + error.message);
@@ -70,6 +76,35 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
+    function startTimer(seconds) {
+        clearInterval(timerInterval);
+        timeRemaining = seconds;
+        timerDisplay.style.display = 'block';
+        timerDisplay.classList.remove('warning');
+        updateTimerDisplay();
+
+        timerInterval = setInterval(() => {
+            timeRemaining--;
+            updateTimerDisplay();
+
+            if (timeRemaining <= 60) {
+                timerDisplay.classList.add('warning');
+            }
+
+            if (timeRemaining <= 0) {
+                clearInterval(timerInterval);
+                alert("Waktu habis! Jawaban Anda akan diperiksa secara otomatis.");
+                checkAllBtn.click();
+            }
+        }, 1000);
+    }
+
+    function updateTimerDisplay() {
+        const m = Math.floor(timeRemaining / 60).toString().padStart(2, '0');
+        const s = (timeRemaining % 60).toString().padStart(2, '0');
+        timeLeftSpan.textContent = `${m}:${s}`;
+    }
+
     function setLoadingState(loading) {
         isLoading = loading;
         if (loading) {
@@ -77,8 +112,11 @@ document.addEventListener('DOMContentLoaded', () => {
             generateBtn.disabled = true;
             generateBtn.style.opacity = '0.7';
             
+            clearInterval(timerInterval);
+            timerDisplay.style.display = 'none';
             questionsList.innerHTML = '<div style="text-align:center; padding: 2rem;">Sedang membuat soal... Mohon tunggu.</div>';
             actionBar.style.display = 'none';
+            exportPdfBtn.style.display = 'none';
         } else {
             generateBtn.textContent = 'Buat Pertanyaan Baru';
             generateBtn.disabled = false;
@@ -187,14 +225,16 @@ Catatan: correctAnswer adalah indeks dari array options (0 untuk A, 1 untuk B, 2
             });
         });
         
-        actionBar.style.display = 'block';
+        actionBar.style.display = 'flex';
+        checkAllBtn.style.display = 'block';
         checkAllBtn.disabled = true;
         checkAllBtn.style.opacity = '0.5';
+        exportPdfBtn.style.display = 'none';
     }
 
     function selectOption(qIndex, optIndex, element, container) {
-        // Prevent selection if already checked
-        if (actionBar.style.display === 'none' && document.getElementById(`feedback-container-0`).classList.contains('active')) return;
+        // Prevent selection if already checked (timer stopped means checked)
+        if (checkAllBtn.style.display === 'none') return;
 
         // Remove selection from all in this specific question
         const allOptions = container.querySelectorAll('.option');
@@ -253,7 +293,13 @@ Catatan: correctAnswer adalah indeks dari array options (0 untuk A, 1 untuk B, 2
             feedbackText.textContent = q.explanation;
         });
 
-        // Hide check all button after checking
-        actionBar.style.display = 'none';
+        // Hide check all button after checking, show export button, stop timer
+        clearInterval(timerInterval);
+        checkAllBtn.style.display = 'none';
+        exportPdfBtn.style.display = 'block';
+    });
+
+    exportPdfBtn.addEventListener('click', () => {
+        window.print();
     });
 });
