@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Shana Bertanya - OSN IPA SD</title>
+    <meta name="description" content="Aplikasi latihan soal OSN IPA tingkat SD untuk persiapan olimpiade.">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <!-- Animated Background -->
+    <div class="bg-circles">
+        <div class="circle"></div>
+        <div class="circle"></div>
+        <div class="circle"></div>
+    </div>
+
+    <div class="app-container">
+        <header class="header">
+            <h1>Shana Bertanya</h1>
+            <p>Latihan Soal Olimpiade Sains Nasional (OSN) IPA SD</p>
+        </header>
+
+        <section class="controls">
+            <div class="control-group" style="flex: 100%; margin-bottom: 1rem;">
+                <label for="api-key">OpenRouter API Key</label>
+                <input type="password" id="api-key" placeholder="sk-or-v1-..." style="
+                    appearance: none; background: rgba(255, 255, 255, 0.1); 
+                    border: 1px solid var(--glass-border); border-radius: 12px; 
+                    padding: 1rem; color: var(--text-main); font-size: 1rem; 
+                    width: 100%; outline: none; transition: all 0.3s ease;
+                ">
+            </div>
+            
+            <div class="control-group">
+                <label for="model-select">Pilih Model (OpenRouter)</label>
+                <input type="text" id="model-select" list="model-options" placeholder="Ketik ID model..." style="
+                    appearance: none; background: rgba(255, 255, 255, 0.1); 
+                    border: 1px solid var(--glass-border); border-radius: 12px; 
+                    padding: 1rem; color: var(--text-main); font-size: 1rem; 
+                    width: 100%; outline: none; transition: all 0.3s ease;
+                ">
+                <datalist id="model-options">
+                    <option value="google/gemini-2.5-flash">
+                    <option value="openai/gpt-4o-mini">
+                    <option value="anthropic/claude-3-haiku">
+                    <option value="meta-llama/llama-3-8b-instruct:free">
+                    <option value="google/gemini-pro-1.5">
+                </datalist>
+            </div>
+
+            <div class="control-group">
+                <label for="subject">Pilih Mata Pelajaran</label>
+                <select id="subject">
+                    <option value="biology">Biologi</option>
+                    <option value="physics">Fisika</option>
+                </select>
+            </div>
+            
+            <div class="control-group">
+                <label for="difficulty">Tingkat Kesulitan</label>
+                <select id="difficulty">
+                    <option value="any">Semua Tingkat</option>
+                    <option value="easy">Mudah</option>
+                    <option value="medium">Sedang</option>
+                    <option value="hard">Sulit</option>
+                </select>
+            </div>
+            
+            <div class="control-group" style="justify-content: flex-end;">
+                <button id="generate-btn" class="btn">Buat Pertanyaan</button>
+            </div>
+        </section>
+
+        <section id="questions-wrapper">
+            <div id="questions-list">
+                <!-- Multiple questions will be rendered here dynamically -->
+            </div>
+            <div id="action-bar" style="display: none; margin-top: 2rem; text-align: center;">
+                <button id="check-all-btn" class="btn">Cek Semua Jawaban</button>
+            </div>
+        </section>
+    </div>
+
+    <script src="silabus.js"></script>
+    <script src="script.js"></script>
+</body>
+</html>
